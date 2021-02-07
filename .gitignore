@@ -6,3 +6,4 @@ build
 ca-certificates.crt
 tmp
 node_modules
+.terraform*
