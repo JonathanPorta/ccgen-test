@@ -1,0 +1,35 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: jonathanporta/docker-fedora-node-build-image:latest
+    steps:
+      - checkout
+      - run:
+          name: Execute Test Suite
+          command: make test
+      - run:
+          name: Create an RPM package
+          command: BUILD_NUM=$CIRCLE_BUILD_NUM make package
+      - store_artifacts:
+          path: ~/project/*.rpm # TODO: Edit this to match your release file.
+          prefix: /
+  release:
+    docker:
+      - image: jonathanporta/docker-fedora-node-build-image:latest
+    steps:
+      - run:
+          name: Package and Cut Release
+          command: make release
+
+workflows:
+  version: 2
+  build-release:
+    jobs:
+      - test
+      - release:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
